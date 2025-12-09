@@ -1,4 +1,5 @@
 
+
 import React, { useRef, useEffect } from 'react';
 import { LevelData, Coefficient, Target, Complex, GAME_COLORS } from '../types';
 import { findRoots } from '../mathUtils';
@@ -354,7 +355,11 @@ const MonodromyGame: React.FC<MonodromyGameProps> = ({ levelData, isDevMode, onL
                     im: parseFloat(t.val.im.toFixed(2))
                 }))
             };
-            setDevOutput(JSON.stringify(exportData, null, 2));
+            
+            // Format as JS Object Literal (unquoted keys) for easy copy-pasting into constants.ts
+            const jsonString = JSON.stringify(exportData, null, 2);
+            const objectLiteral = jsonString.replace(/"(\w+)":/g, '$1:');
+            setDevOutput(objectLiteral);
         }
 
         if (p.key === '2') {

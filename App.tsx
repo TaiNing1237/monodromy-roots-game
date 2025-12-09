@@ -6,6 +6,7 @@ import { LevelData } from './types';
 
 const App: React.FC = () => {
   const [currentLevelIndex, setCurrentLevelIndex] = useState(0);
+  const [resetKey, setResetKey] = useState(0);
   const [isDevMode, setIsDevMode] = useState(false);
   const [devOutput, setDevOutput] = useState<string>('');
   const [gameStarted, setGameStarted] = useState(false);
@@ -21,6 +22,18 @@ const App: React.FC = () => {
       alert("All levels cleared! Resetting.");
       setCurrentLevelIndex(0);
     }
+  };
+
+  const handlePrevLevel = () => {
+    setShowLevelComplete(false);
+    if (currentLevelIndex > 0) {
+      setCurrentLevelIndex(prev => prev - 1);
+    }
+  };
+
+  const handleResetLevel = () => {
+    setResetKey(prev => prev + 1);
+    setShowLevelComplete(false);
   };
 
   // Keyboard listener for 'D' to toggle dev mode globally
@@ -54,6 +67,7 @@ const App: React.FC = () => {
       {/* Game Canvas */}
       <div className="absolute inset-0 z-0">
         <MonodromyGame 
+          key={`${currentLevel.id}-${resetKey}`}
           levelData={currentLevel} 
           isDevMode={isDevMode}
           onLevelComplete={() => setShowLevelComplete(true)}
@@ -75,6 +89,12 @@ const App: React.FC = () => {
           <p className="text-cyan-800 text-xs font-mono mt-2">
              Drag <span className="text-pink-500">Squares</span> to guide <span className="text-cyan-300">Dots</span> to <span className="text-yellow-300">Rings</span>.
           </p>
+          <button 
+            onClick={handleResetLevel}
+            className="mt-4 px-3 py-1 border border-cyan-900/50 text-cyan-800 hover:bg-cyan-900/20 hover:text-cyan-400 hover:border-cyan-500 transition-colors text-xs font-mono tracking-widest uppercase pointer-events-auto"
+          >
+            [ RESET SYSTEM ]
+          </button>
         </div>
         
         {isDevMode && (
@@ -84,6 +104,8 @@ const App: React.FC = () => {
               <li>[Drag]: Move any Coeff</li>
               <li>[H]: Snap Horizontal</li>
               <li>[V]: Snap Vertical</li>
+              <li>[Q]: Snap x+y=c</li>
+              <li>[W]: Snap x-y=c</li>
               <li>[C]: Snap Circle (Origin)</li>
               <li>[E]: Define Circle Center (Click)</li>
               <li>[Z]: Freeze Position</li>
@@ -91,12 +113,20 @@ const App: React.FC = () => {
               <li>[2]: Set Targets to Roots</li>
               <li>[P]: Export JSON</li>
             </ul>
-            <button 
-              onClick={handleNextLevel}
-              className="mt-3 w-full bg-red-900/50 hover:bg-red-800/50 text-red-200 py-1 border border-red-500/30 transition-colors uppercase"
-            >
-              [DEBUG] Skip Level
-            </button>
+            <div className="flex gap-2 mt-3 w-full">
+              <button 
+                onClick={handlePrevLevel}
+                className="flex-1 bg-red-900/50 hover:bg-red-800/50 text-red-200 py-1 border border-red-500/30 transition-colors uppercase"
+              >
+                Prev Level
+              </button>
+              <button 
+                onClick={handleNextLevel}
+                className="flex-1 bg-red-900/50 hover:bg-red-800/50 text-red-200 py-1 border border-red-500/30 transition-colors uppercase"
+              >
+                Next Level
+              </button>
+            </div>
             {devOutput && (
               <textarea 
                 className="mt-4 w-64 h-32 bg-black/50 text-green-400 text-[10px] p-2 border border-green-800 focus:outline-none"
