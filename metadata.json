@@ -1,0 +1,5 @@
+{
+  "name": "Monodromy: The Harmony of Roots",
+  "description": "A sci-fi math-puzzle game visualizing polynomial roots. Players manipulate coefficients to guide roots into target rings using monodromy principles. Includes a Dev Mode for level design.",
+  "requestFramePermissions": []
+}
