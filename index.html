@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Monodromy: The Harmony of Roots</title>
+  
+  <!-- Libraries -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- p5.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
+  
+  <!-- React & Babel for Single File Execution -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #050510;
+      color: white;
+      font-family: 'Courier New', Courier, monospace;
+      user-select: none;
+    }
+    canvas {
+      display: block;
+      outline: none;
+    }
+    .glow {
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3);
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/"
+  }
+}
+</script>
+</head>
+<body>
+  <div id="root">
+    <div style="display:flex;justify-content:center;align-items:center;height:100vh;color:#0ff;font-family:monospace;flex-direction:column;gap:20px;">
+      <div style="font-size:24px;">LOADING ENGINE...</div>
+      <div style="font-size:14px;opacity:0.7;">Initializing Geometry & Audio Systems</div>
+    </div>
+  </div>
+
+  <!-- Main Application Code -->
+  <script type="text/babel" data-presets="typescript,react">
+    
+    // ==========================================
+    // 1. CONSTANTS & TYPES
+    // ==========================================
+
+    const GAME_COLORS = {
+      bg: '#050510',
+      grid: 'rgba(255,255,255,0.05)',
+      constraintGuide: 'rgba(255, 255, 255, 0.3)',
+      coeff: '#ff0055',
+      coeffActive: '#ff55aa',
+      text: '#aaddff',
+      palette: [
+        '#00ffff', // Cyan
+        '#ff00ff', // Magenta
+        '#ffff00', // Yellow
+        '#00ff00', // Lime
+        '#ff8800', // Orange
+        '#aa00ff', // Violet
+      ]
+    };
+
+    const PENTATONIC_SCALE = [261.63, 311.13, 349.23, 392.00, 466.16, 523.25];
+
+    // Level Definitions
+    const INITIAL_LEVELS = [
+      {
+        id: 1,
+        degree: 2,
+        formula: "z² - a = 0",
+        coeffs: [
+          {
+            re: -1.43,
+            im: 0.02,
+            constraint: "circle",
+            constraintParams: { radius: 1.43 }
+          },
+          {
+            re: 0,
+            im: 0,
+            constraint: "frozen",
+            constraintParams: {}
+          }
+        ],
+        targets: [
+          { id: 1, re: 1.19, im: 0.01 },
+          { id: 0, re: -1.19, im: -0.01 }
+        ]
+      },
+      {
+        id: 2,
+        degree: 2,
+        formula: "z² - z - a = 0",
+        coeffs: [
+          {
+            re: 0,
+            im: 0,
+            constraint: "circle",
+            constraintParams: {
+              radius: 0.96,
+              center: { re: 0.96, im: -0.01 }
+            }
+          },
+          {
+            re: -1,
+            im: 0,
+            constraint: "frozen",
+            constraintParams: {}
+          }
+        ],
+        targets: [
+          { id: 1, re: 1, im: 0 },
+          { id: 0, re: 0, im: 0 }
+        ]
+      },
+      {
+        id: 3,
+        degree: 2,
+        formula: "z² - az - 1 = 0",
+        coeffs: [
+          {
+            re: -1,
+            im: 0,
+            constraint: "frozen",
+            constraintParams: {}
+          },
+          {
+            re: 0.01,
+            im: 0,
+            constraint: "circle",
+            constraintParams: {
+              radius: 1.36,
+              center: { re: -0.02, im: -1.37 }
+            }
+          }
+        ],
+        targets: [
+          { id: 1, re: 1, im: 0 },
+          { id: 0, re: -1, im: 0 }
+        ]
+      },
+      {
+        id: 4,
+        degree: 2,
+        formula: "z² + bz + c = 0",
+        coeffs: [
+          {
+            re: -1.74,
+            im: 0,
+            constraint: "horizontal",
+            constraintParams: { y: 0 }
+          },
+          {
+            re: -0.36,
+            im: 1.01,
+            constraint: "vertical",
+            constraintParams: { x: -0.36 }
+          }
+        ],
+        targets: [
+          { id: 0, re: -1.05, im: -0.43 },
+          { id: 1, re: 1.41, im: -0.57 }
+        ]
+      },
+      {
+        id: 5,
+        degree: 3,
+        formula: "z³ - a = 0",
+        zoom: 0.7,
+        coeffs: [
+          {
+            re: 1.68,
+            im: 0,
+            constraint: "circle",
+            constraintParams: { radius: 1.68 }
+          },
+          { re: 0, im: 0.01, constraint: "frozen", constraintParams: {} },
+          { re: 0, im: 0.01, constraint: "frozen", constraintParams: {} }
+        ],
+        targets: [
+          { id: 0, re: 1.19, im: -0.01 },
+          { id: 1, re: -0.6, im: 1.03 },
+          { id: 2, re: -0.59, im: -1.03 }
+        ]
+      },
+      {
+        id: 6,
+        degree: 3,
+        formula: "z³ - az + 1 = 0",
+        coeffs: [
+            { re: 1, im: 0, constraint: 'frozen', constraintParams: {} }, 
+            { re: 0, im: 0, constraint: 'none', constraintParams: {} },
+            { re: 0, im: 0, constraint: 'frozen', constraintParams: {} } 
+        ],
+        targets: [
+            { id: 0, re: -1, im: 0 },
+            { id: 1, re: 0.5, im: 0.866 },
+            { id: 2, re: 0.5, im: -0.866 }
+        ]
+      },
+      {
+        id: 7,
+        degree: 3,
+        coeffs: [
+            { re: 0, im: 0, constraint: 'circle', constraintParams: { radius: 1 } },
+            { re: 0, im: 0, constraint: 'none' },
+            { re: 0, im: 0, constraint: 'none' }
+        ],
+        targets: [{ id: 0, re: 1, im: 0 }, { id: 1, re: -0.5, im: 0.86 }, { id: 2, re: -0.5, im: -0.86 }]
+      },
+      {
+        id: 8,
+        degree: 3,
+        coeffs: [
+            { re: -1, im: 0, constraint: 'frozen', constraintParams: {} },
+            { re: 1, im: 0, constraint: 'circle', constraintParams: { radius: 2 } },
+            { re: 0, im: 1, constraint: 'horizontal', constraintParams: { y: 1 } }
+        ],
+        targets: [{ id: 0, re: 0, im: 1 }, { id: 1, re: 1, im: -1 }, { id: 2, re: -1, im: -1 }]
+      },
+      {
+        id: 9,
+        degree: 3,
+        coeffs: [
+            { re: 0, im: 0, constraint: 'none' },
+            { re: 0, im: 0, constraint: 'none' },
+            { re: 0, im: 0, constraint: 'none' }
+        ],
+        targets: [{ id: 0, re: 0.5, im: 0.5 }, { id: 1, re: -0.5, im: 0.5 }, { id: 2, re: 0, im: -1 }]
+      }
+    ];
+
+    // ==========================================
+    // 2. MATH UTILS
+    // ==========================================
+
+    const cAdd = (a, b) => ({ re: a.re + b.re, im: a.im + b.im });
+    const cSub = (a, b) => ({ re: a.re - b.re, im: a.im - b.im });
+    const cMul = (a, b) => ({
+      re: a.re * b.re - a.im * b.im,
+      im: a.re * b.im + a.im * b.re
+    });
+    const cDiv = (a, b) => {
+      const den = b.re * b.re + b.im * b.im;
+      return {
+        re: (a.re * b.re + a.im * b.im) / den,
+        im: (a.im * b.re - a.re * b.im) / den
+      };
+    };
+
+    const evalPoly = (z, coeffs) => {
+      let zPow = { re: 1, im: 0 };
+      let sum = { re: 0, im: 0 };
+      
+      for (let i = 0; i < coeffs.length; i++) {
+        const term = cMul(coeffs[i], zPow);
+        sum = cAdd(sum, term);
+        zPow = cMul(zPow, z);
+      }
+      sum = cAdd(sum, zPow);
+      return sum;
+    };
+
+    const findRoots = (currentRoots, coeffs, iterations = 2) => {
+      let nextRoots = [...currentRoots];
+
+      if (nextRoots.length !== coeffs.length) {
+          nextRoots = [];
+          for(let i=0; i<coeffs.length; i++) {
+              const angle = (Math.PI * 2 * i) / coeffs.length + 0.1;
+              nextRoots.push({ re: Math.cos(angle), im: Math.sin(angle) });
+          }
+      }
+
+      for (let iter = 0; iter < iterations; iter++) {
+        for (let i = 0; i < nextRoots.length; i++) {
+          const z = nextRoots[i];
+          const pVal = evalPoly(z, coeffs);
+          let denominator = { re: 1, im: 0 };
+          
+          for (let j = 0; j < nextRoots.length; j++) {
+            if (i !== j) {
+              denominator = cMul(denominator, cSub(z, nextRoots[j]));
+            }
+          }
+          
+          if (Math.abs(denominator.re) < 1e-9 && Math.abs(denominator.im) < 1e-9) {
+              denominator = { re: 0.001, im: 0.001 };
+          }
+
+          const offset = cDiv(pVal, denominator);
+          nextRoots[i] = cSub(z, offset);
+        }
+      }
+      return nextRoots;
+    };
+
+    // ==========================================
+    // 3. GAME COMPONENT
+    // ==========================================
+
+    const MonodromyGame = ({ levelData, isDevMode, onLevelComplete, setDevOutput }) => {
+      const containerRef = React.useRef(null);
+      const p5Instance = React.useRef(null);
+
+      const levelRef = React.useRef(levelData);
+      const isDevModeRef = React.useRef(isDevMode);
+      
+      React.useEffect(() => {
+        levelRef.current = levelData;
+      }, [levelData]);
+
+      React.useEffect(() => {
+        isDevModeRef.current = isDevMode;
+      }, [isDevMode]);
+
+      React.useEffect(() => {
+        if (!containerRef.current) return;
+
+        const sketch = (p) => {
+          let coeffs = [];
+          let roots = [];
+          let targets = [];
+          let rootTrails = [];
+          const TRAIL_LENGTH = 75;
+          
+          let successTimer = 0;
+          const SUCCESS_DURATION = 120;
+          let isLevelComplete = false;
+          let particles = [];
+
+          let droneOsc;
+          let feedbackOsc;
+          let feedbackEnv;
+          let isAudioStarted = false;
+
+          let selectedCoeff = null;
+          let pickingCenterCoeff = null;
+          let dragOffset = { x: 0, y: 0 };
+
+          const BASE_SCALE = 100;
+          let zoomLevel = 1.0;
+          let currentScale = BASE_SCALE;
+          let centerX = 0;
+          let centerY = 0;
+
+          p.setup = () => {
+            p.createCanvas(containerRef.current.clientWidth, containerRef.current.clientHeight);
+            p.textFont('Courier New');
+            centerX = p.width / 2;
+            centerY = p.height / 2;
+            initLevel();
+          };
+
+          p.windowResized = () => {
+            if(containerRef.current) {
+                p.resizeCanvas(containerRef.current.clientWidth, containerRef.current.clientHeight);
+                centerX = p.width / 2;
+                centerY = p.height / 2;
+            }
+          };
+
+          p.mouseWheel = (event) => {
+            const sensitivity = 0.001;
+            zoomLevel -= event.delta * sensitivity;
+            zoomLevel = p.constrain(zoomLevel, 0.3, 2.0);
+            currentScale = BASE_SCALE * zoomLevel;
+            return false;
+          };
+
+          const initAudio = () => {
+            if (isAudioStarted) return;
+            p.userStartAudio();
+            droneOsc = new p5.Oscillator('sine');
+            droneOsc.freq(55);
+            droneOsc.amp(0.1);
+            droneOsc.start();
+            feedbackOsc = new p5.Oscillator('triangle');
+            feedbackEnv = new p5.Envelope();
+            feedbackEnv.setADSR(0.01, 0.1, 0.1, 0.5);
+            feedbackOsc.amp(feedbackEnv);
+            feedbackOsc.start();
+            isAudioStarted = true;
+          };
+
+          const initLevel = () => {
+            const data = levelRef.current;
+            isLevelComplete = false;
+            successTimer = 0;
+            particles = [];
+            pickingCenterCoeff = null;
+
+            zoomLevel = data.zoom || 1.0;
+            currentScale = BASE_SCALE * zoomLevel;
+            
+            coeffs = data.coeffs.map((c, idx) => {
+              const params = c.constraintParams || {};
+              if (c.constraint === 'horizontal' && params.y === undefined) params.y = c.im;
+              if (c.constraint === 'vertical' && params.x === undefined) params.x = c.re;
+              if (c.constraint === 'circle') {
+                 if (params.radius === undefined) params.radius = p.dist(0, 0, c.re, c.im);
+                 if (params.center === undefined) params.center = { re: 0, im: 0 };
+              }
+              return {
+                id: idx,
+                val: { re: c.re, im: c.im },
+                constraint: c.constraint,
+                constraintParams: params,
+                isDragging: false
+              };
+            });
+
+            targets = data.targets.map(t => ({
+              id: t.id, 
+              val: { re: t.re, im: t.im },
+              radius: 0.12, 
+              isFilled: false
+            }));
+
+            roots = [];
+            rootTrails = [];
+            const n = data.degree;
+            for(let i=0; i<n; i++) {
+               const angle = (p.TWO_PI * i) / n;
+               roots.push({ re: Math.cos(angle), im: Math.sin(angle) });
+               rootTrails.push([]);
+            }
+          };
+
+          const spawnFireworks = () => {
+              targets.forEach(t => {
+                  const scr = worldToScreen(t.val.re, t.val.im);
+                  const color = GAME_COLORS.palette[t.id % GAME_COLORS.palette.length];
+                  for(let i=0; i<50; i++) {
+                      const angle = p.random(p.TWO_PI);
+                      const speed = p.random(1, 6);
+                      particles.push({
+                          x: scr.x, y: scr.y,
+                          vx: Math.cos(angle) * speed,
+                          vy: Math.sin(angle) * speed,
+                          life: 1.0, color: color
+                      });
+                  }
+              });
+          };
+
+          const screenToWorld = (sx, sy) => ({
+            re: (sx - centerX) / currentScale,
+            im: -(sy - centerY) / currentScale 
+          });
+
+          const worldToScreen = (wx, wy) => ({
+            x: centerX + wx * currentScale,
+            y: centerY - wy * currentScale
+          });
+
+          p.mousePressed = () => {
+            initAudio(); 
+            const mousePos = screenToWorld(p.mouseX, p.mouseY);
+
+            if (pickingCenterCoeff) {
+                const r = p.dist(mousePos.re, mousePos.im, pickingCenterCoeff.val.re, pickingCenterCoeff.val.im);
+                pickingCenterCoeff.constraint = 'circle';
+                pickingCenterCoeff.constraintParams = {
+                    center: { re: mousePos.re, im: mousePos.im },
+                    radius: r
+                };
+                pickingCenterCoeff = null;
+                return;
+            }
+            
+            let closestDist = 0.4;
+            selectedCoeff = null;
+
+            coeffs.forEach(c => {
+              const d = p.dist(mousePos.re, mousePos.im, c.val.re, c.val.im);
+              if (d < closestDist) {
+                closestDist = d;
+                selectedCoeff = c;
+              }
+            });
+
+            if (selectedCoeff) {
+                if (!isDevModeRef.current && selectedCoeff.constraint === 'frozen') {
+                  selectedCoeff = null;
+                  return;
+                }
+                selectedCoeff.isDragging = true;
+                dragOffset = { 
+                    x: selectedCoeff.val.re - mousePos.re, 
+                    y: selectedCoeff.val.im - mousePos.im 
+                };
+            }
+          };
+
+          p.mouseReleased = () => {
+            if (selectedCoeff) {
+                selectedCoeff.isDragging = false;
+                selectedCoeff = null;
+            }
+          };
+
+          p.mouseDragged = () => {
+            if (selectedCoeff && !isLevelComplete) {
+                const rawMouse = screenToWorld(p.mouseX, p.mouseY);
+                let targetX = rawMouse.re + dragOffset.x;
+                let targetY = rawMouse.im + dragOffset.y;
+                const activeConstraint = isDevModeRef.current ? 'none' : selectedCoeff.constraint;
+                const params = selectedCoeff.constraintParams;
+
+                if (activeConstraint === 'frozen') {
+                     targetX = selectedCoeff.val.re;
+                     targetY = selectedCoeff.val.im;
+                } 
+                else if (activeConstraint === 'horizontal') {
+                    targetY = params.y !== undefined ? params.y : 0; 
+                } 
+                else if (activeConstraint === 'vertical') {
+                    targetX = params.x !== undefined ? params.x : 0;
+                } 
+                else if (activeConstraint === 'circle') {
+                    const cx = params.center?.re ?? 0;
+                    const cy = params.center?.im ?? 0;
+                    const r = params.radius ?? 1;
+                    const dx = targetX - cx;
+                    const dy = targetY - cy;
+                    const angle = Math.atan2(dy, dx);
+                    targetX = cx + r * Math.cos(angle);
+                    targetY = cy + r * Math.sin(angle);
+                }
+
+                selectedCoeff.val.re = targetX;
+                selectedCoeff.val.im = targetY;
+
+                if (droneOsc) {
+                    const speed = p.dist(p.movedX, p.movedY, 0, 0);
+                    droneOsc.freq(55 + speed * 2);
+                }
+            }
+          };
+
+          p.keyPressed = () => {
+            if (!isDevModeRef.current) return;
+            
+            if (p.key === 'P' || p.key === 'p') {
+                const exportData = {
+                    id: levelRef.current.id,
+                    degree: levelRef.current.degree,
+                    formula: levelRef.current.formula,
+                    zoom: parseFloat(zoomLevel.toFixed(2)),
+                    coeffs: coeffs.map(c => {
+                        const currentRe = c.val.re;
+                        const currentIm = c.val.im;
+                        const exportedParams = { ...c.constraintParams };
+                        
+                        if (c.constraint === 'horizontal') exportedParams.y = currentIm;
+                        else if (c.constraint === 'vertical') exportedParams.x = currentRe;
+                        else if (c.constraint === 'circle') {
+                            const cx = exportedParams.center?.re ?? 0;
+                            const cy = exportedParams.center?.im ?? 0;
+                            exportedParams.radius = p.dist(currentRe, currentIm, cx, cy);
+                        }
+
+                        const cleanParams = {};
+                        if (c.constraint === 'horizontal') cleanParams.y = parseFloat(exportedParams.y.toFixed(2));
+                        if (c.constraint === 'vertical') cleanParams.x = parseFloat(exportedParams.x.toFixed(2));
+                        if (c.constraint === 'circle') {
+                            cleanParams.radius = parseFloat(exportedParams.radius.toFixed(2));
+                            if (exportedParams.center && (exportedParams.center.re !== 0 || exportedParams.center.im !== 0)) {
+                                 cleanParams.center = {
+                                     re: parseFloat(exportedParams.center.re.toFixed(2)),
+                                     im: parseFloat(exportedParams.center.im.toFixed(2))
+                                 };
+                            }
+                        }
+
+                        return {
+                            re: parseFloat(currentRe.toFixed(2)),
+                            im: parseFloat(currentIm.toFixed(2)),
+                            constraint: c.constraint,
+                            constraintParams: cleanParams
+                        };
+                    }),
+                    targets: targets.map(t => ({
+                        id: t.id,
+                        re: parseFloat(t.val.re.toFixed(2)),
+                        im: parseFloat(t.val.im.toFixed(2))
+                    }))
+                };
+                setDevOutput(JSON.stringify(exportData, null, 2));
+            }
+
+            if (p.key === '2') {
+                 targets = roots.map((r, i) => ({
+                     id: i,
+                     val: { re: r.re, im: r.im },
+                     radius: 0.12, 
+                     isFilled: false
+                 }));
+            }
+
+            if (selectedCoeff) {
+                if (p.key === 'H' || p.key === 'h') {
+                    selectedCoeff.constraint = 'horizontal';
+                    selectedCoeff.constraintParams = { y: selectedCoeff.val.im };
+                }
+                if (p.key === 'V' || p.key === 'v') {
+                    selectedCoeff.constraint = 'vertical';
+                    selectedCoeff.constraintParams = { x: selectedCoeff.val.re };
+                }
+                if (p.key === 'C' || p.key === 'c') {
+                    const r = p.dist(0, 0, selectedCoeff.val.re, selectedCoeff.val.im);
+                    selectedCoeff.constraint = 'circle';
+                    selectedCoeff.constraintParams = { radius: r, center: { re: 0, im: 0 } };
+                }
+                if (p.key === 'E' || p.key === 'e') {
+                    pickingCenterCoeff = selectedCoeff;
+                    selectedCoeff.isDragging = false;
+                    selectedCoeff = null;
+                }
+                if (p.key === 'Z' || p.key === 'z') {
+                    selectedCoeff.constraint = 'frozen';
+                    selectedCoeff.constraintParams = {};
+                }
+                if (p.key === 'F' || p.key === 'f') {
+                    selectedCoeff.constraint = 'none';
+                    selectedCoeff.constraintParams = {};
+                }
+            }
+          };
+
+          p.draw = () => {
+            p.background(GAME_COLORS.bg);
+
+            const uiScale = Math.pow(zoomLevel, 0.6); 
+            const rootDotSize = 12 * uiScale;
+            const coeffSize = 20 * uiScale;
+            
+            if (particles.length > 0) {
+                for(let i = particles.length - 1; i >= 0; i--) {
+                    const pt = particles[i];
+                    pt.x += pt.vx; pt.y += pt.vy;
+                    pt.vy += 0.1; pt.life -= 0.02;
+                    p.noStroke();
+                    const c = p.color(pt.color);
+                    c.setAlpha(pt.life * 255);
+                    p.fill(c);
+                    p.ellipse(pt.x, pt.y, 4, 4);
+                    if(pt.life <= 0) particles.splice(i, 1);
+                }
+            }
+
+            p.stroke(GAME_COLORS.grid);
+            p.strokeWeight(1);
+            p.line(0, centerY, p.width, centerY);
+            p.line(centerX, 0, centerX, p.height);
+            p.noFill();
+            p.ellipse(centerX, centerY, currentScale * 2);
+
+            if (pickingCenterCoeff) {
+                const ms = screenToWorld(p.mouseX, p.mouseY);
+                const coeffPos = worldToScreen(pickingCenterCoeff.val.re, pickingCenterCoeff.val.im);
+                p.stroke(255, 255, 0);
+                p.strokeWeight(1);
+                p.drawingContext.setLineDash([5, 5]);
+                p.line(coeffPos.x, coeffPos.y, p.mouseX, p.mouseY);
+                const r = p.dist(ms.re, ms.im, pickingCenterCoeff.val.re, pickingCenterCoeff.val.im) * currentScale;
+                p.noFill();
+                p.stroke(255, 255, 0, 100);
+                p.ellipse(p.mouseX, p.mouseY, r * 2);
+                p.drawingContext.setLineDash([]);
+                p.fill(255, 255, 0);
+                p.noStroke();
+                p.textSize(12);
+                p.textAlign(p.CENTER);
+                p.text("CLICK TO SET CENTER", p.mouseX, p.mouseY - 10);
+                p.ellipse(p.mouseX, p.mouseY, 6, 6);
+            }
+            
+            coeffs.forEach(c => {
+                 const isActive = c.isDragging;
+                 const isPicking = pickingCenterCoeff?.id === c.id;
+                 const isFrozen = c.constraint === 'frozen';
+                 if (c.constraint !== 'none' || isPicking) {
+                     if (isFrozen) p.stroke('rgba(100, 30, 30, 0.2)');
+                     else p.stroke(isActive || isPicking ? 'rgba(255,255,255,0.6)' : GAME_COLORS.constraintGuide);
+                     p.strokeWeight(isActive ? 2 : 1);
+                     p.drawingContext.setLineDash([5, 5]);
+                     p.noFill();
+
+                     if (c.constraint === 'horizontal') {
+                         const yVal = c.constraintParams.y ?? 0;
+                         const yScreen = worldToScreen(0, yVal).y;
+                         p.line(0, yScreen, p.width, yScreen);
+                     } 
+                     else if (c.constraint === 'vertical') {
+                         const xVal = c.constraintParams.x ?? 0;
+                         const xScreen = worldToScreen(xVal, 0).x;
+                         p.line(xScreen, 0, xScreen, p.height);
+                     }
+                     else if (c.constraint === 'circle' && !isPicking) {
+                         const r = (c.constraintParams.radius ?? 1) * currentScale;
+                         const cx = (c.constraintParams.center?.re ?? 0);
+                         const cy = (c.constraintParams.center?.im ?? 0);
+                         const centerScreen = worldToScreen(cx, cy);
+                         p.ellipse(centerScreen.x, centerScreen.y, r * 2);
+                         if (cx !== 0 || cy !== 0) {
+                             p.line(centerScreen.x - 5, centerScreen.y, centerScreen.x + 5, centerScreen.y);
+                             p.line(centerScreen.x, centerScreen.y - 5, centerScreen.x, centerScreen.y + 5);
+                         }
+                     }
+                     p.drawingContext.setLineDash([]);
+                 }
+            });
+
+            const simpleCoeffs = coeffs.map(c => c.val);
+            roots = findRoots(roots, simpleCoeffs, 15);
+
+            let allSatisfied = true;
+            targets.forEach((t) => {
+                const scr = worldToScreen(t.val.re, t.val.im);
+                const color = GAME_COLORS.palette[t.id % GAME_COLORS.palette.length];
+                const targetDiameter = t.radius * 2 * currentScale; 
+                const correctRoot = roots[t.id];
+                const d = correctRoot ? p.dist(correctRoot.re, correctRoot.im, t.val.re, t.val.im) : 999;
+                const isHit = d < t.radius;
+                t.isFilled = isHit;
+                if (!isHit) allSatisfied = false;
+
+                p.noFill();
+                p.stroke(color);
+                p.strokeWeight(2);
+                const pulse = isHit ? p.sin(p.frameCount * 0.2) * 2 : 0;
+                p.ellipse(scr.x, scr.y, targetDiameter + pulse);
+                
+                if (isHit) {
+                    p.fill(color);
+                    const alpha = p.map(successTimer, 0, SUCCESS_DURATION, 50, 200);
+                    p.drawingContext.globalAlpha = alpha / 255;
+                    p.ellipse(scr.x, scr.y, targetDiameter * 0.7);
+                    p.drawingContext.globalAlpha = 1;
+                }
+                
+                if (isHit && !isLevelComplete) {
+                    p.noFill();
+                    p.stroke(255);
+                    p.strokeWeight(3);
+                    const angle = p.map(successTimer, 0, SUCCESS_DURATION, 0, p.TWO_PI);
+                    const arcSize = targetDiameter * 1.3;
+                    p.arc(scr.x, scr.y, arcSize, arcSize, -p.HALF_PI, -p.HALF_PI + angle);
+                }
+            });
+
+            if (allSatisfied && !isLevelComplete && !isDevModeRef.current) {
+                successTimer++;
+                if (successTimer > SUCCESS_DURATION) {
+                    isLevelComplete = true;
+                    spawnFireworks();
+                    if (feedbackOsc) {
+                        feedbackOsc.freq(523.25); 
+                        feedbackEnv.play();
+                    }
+                    setTimeout(onLevelComplete, 2000); 
+                }
+            } else if (!isLevelComplete) {
+                 successTimer = 0; 
+            }
+
+            roots.forEach((root, i) => {
+                const scr = worldToScreen(root.re, root.im);
+                const color = GAME_COLORS.palette[i % GAME_COLORS.palette.length];
+                rootTrails[i].push({ re: root.re, im: root.im });
+                if (rootTrails[i].length > TRAIL_LENGTH) rootTrails[i].shift();
+                p.noFill();
+                p.strokeWeight(4 * uiScale);
+                const cStr = p.color(color);
+                cStr.setAlpha(50);
+                p.stroke(cStr);
+                p.beginShape();
+                rootTrails[i].forEach(pos => {
+                    const s = worldToScreen(pos.re, pos.im);
+                    p.vertex(s.x, s.y);
+                });
+                p.endShape();
+                p.noStroke();
+                p.fill(color);
+                p.drawingContext.shadowBlur = 15;
+                p.drawingContext.shadowColor = color;
+                p.ellipse(scr.x, scr.y, rootDotSize);
+                p.drawingContext.shadowBlur = 0;
+            });
+
+            coeffs.forEach(c => {
+                const scr = worldToScreen(c.val.re, c.val.im);
+                const isHover = c.id === selectedCoeff?.id;
+                const isPicking = pickingCenterCoeff?.id === c.id;
+                const isFrozen = c.constraint === 'frozen';
+                
+                p.strokeWeight(2);
+                if (isFrozen) {
+                    p.stroke('rgba(100, 40, 40, 0.3)');
+                    p.fill('rgba(50, 0, 0, 0.5)');
+                } else {
+                    p.stroke(isHover || isPicking ? '#fff' : GAME_COLORS.coeff);
+                    p.fill(c.isDragging || isPicking ? GAME_COLORS.coeffActive : 'rgba(255, 0, 85, 0.5)');
+                }
+                
+                if (!isFrozen && (c.isDragging || isHover || isPicking)) {
+                    p.drawingContext.shadowBlur = 20;
+                    p.drawingContext.shadowColor = GAME_COLORS.coeffActive;
+                }
+                p.rectMode(p.CENTER);
+                p.rect(scr.x, scr.y, coeffSize, coeffSize);
+
+                if (isFrozen) {
+                     p.stroke('rgba(150, 50, 50, 0.5)');
+                     p.strokeWeight(1);
+                     const xSize = 5 * uiScale;
+                     p.line(scr.x - xSize, scr.y - xSize, scr.x + xSize, scr.y + xSize);
+                     p.line(scr.x + xSize, scr.y - xSize, scr.x - xSize, scr.y + xSize);
+                }
+                p.drawingContext.shadowBlur = 0;
+
+                if (isDevModeRef.current) {
+                    p.fill(255);
+                    p.noStroke();
+                    p.textSize(10);
+                    p.text(`C${c.id}`, scr.x + 15, scr.y - 15);
+                    if (isHover) p.text(`${c.constraint}`, scr.x + 15, scr.y);
+                }
+            });
+          };
+        };
+
+        p5Instance.current = new p5(sketch, containerRef.current);
+        return () => { if (p5Instance.current) p5Instance.current.remove(); };
+      }, [levelData.id]); 
+
+      return <div ref={containerRef} className="w-full h-full" />;
+    };
+
+    const App = () => {
+      const [currentLevelIndex, setCurrentLevelIndex] = React.useState(0);
+      const [isDevMode, setIsDevMode] = React.useState(false);
+      const [devOutput, setDevOutput] = React.useState('');
+      const [gameStarted, setGameStarted] = React.useState(false);
+      const [showLevelComplete, setShowLevelComplete] = React.useState(false);
+
+      const currentLevel = INITIAL_LEVELS[currentLevelIndex];
+
+      const handleNextLevel = () => {
+        setShowLevelComplete(false);
+        if (currentLevelIndex < INITIAL_LEVELS.length - 1) {
+          setCurrentLevelIndex(prev => prev + 1);
+        } else {
+          alert("All levels cleared! Resetting.");
+          setCurrentLevelIndex(0);
+        }
+      };
+
+      React.useEffect(() => {
+        const handleKeyDown = (e) => {
+          if (e.key === 'D' || e.key === 'd') {
+            setIsDevMode(prev => !prev);
+          }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+      }, []);
+
+      if (!gameStarted) {
+        return (
+          <div className="flex flex-col items-center justify-center h-screen w-screen bg-[#050510] text-cyan-400 font-mono">
+            <h1 className="text-4xl mb-4 tracking-widest uppercase glow">Monodromy</h1>
+            <p className="text-sm mb-8 text-cyan-700">The Harmony of Roots</p>
+            <button 
+              onClick={() => setGameStarted(true)}
+              className="px-8 py-3 border border-cyan-500 hover:bg-cyan-900/30 transition-all text-lg tracking-widest"
+            >
+              INITIALIZE INTERFACE
+            </button>
+          </div>
+        );
+      }
+
+      return (
+        <div className="relative w-screen h-screen bg-[#050510] overflow-hidden">
+          <div className="absolute inset-0 z-0">
+            <MonodromyGame 
+              levelData={currentLevel} 
+              isDevMode={isDevMode}
+              onLevelComplete={() => setShowLevelComplete(true)}
+              setDevOutput={setDevOutput}
+            />
+          </div>
+
+          <div className="absolute top-0 left-0 w-full p-6 z-10 pointer-events-none flex justify-between items-start">
+            <div>
+              <h2 className="text-cyan-400 font-mono text-xl tracking-widest">
+                LEVEL {currentLevel.id} <span className="text-xs text-gray-500">/ DEGREE {currentLevel.degree}</span>
+              </h2>
+              {currentLevel.formula && (
+                <p className="text-pink-400 font-mono text-lg mt-2 font-bold tracking-wider">
+                  {currentLevel.formula}
+                </p>
+              )}
+              <p className="text-cyan-800 text-xs font-mono mt-2">
+                 Drag <span className="text-pink-500">Squares</span> to guide <span className="text-cyan-300">Dots</span> to <span className="text-yellow-300">Rings</span>.
+              </p>
+            </div>
+            
+            {isDevMode && (
+              <div className="bg-red-900/20 border border-red-500/50 p-4 rounded text-red-400 font-mono text-xs pointer-events-auto">
+                <h3 className="font-bold border-b border-red-500/30 mb-2 pb-1">DEV MODE ACTIVE</h3>
+                <ul className="space-y-1 opacity-80">
+                  <li>[Drag]: Move any Coeff</li>
+                  <li>[H]: Snap Horizontal</li>
+                  <li>[V]: Snap Vertical</li>
+                  <li>[C]: Snap Circle (Origin)</li>
+                  <li>[E]: Define Circle Center (Click)</li>
+                  <li>[Z]: Freeze Position</li>
+                  <li>[F]: Free Constraint</li>
+                  <li>[2]: Set Targets to Roots</li>
+                  <li>[P]: Export JSON</li>
+                </ul>
+                <button 
+                  onClick={handleNextLevel}
+                  className="mt-3 w-full bg-red-900/50 hover:bg-red-800/50 text-red-200 py-1 border border-red-500/30 transition-colors uppercase"
+                >
+                  [DEBUG] Skip Level
+                </button>
+                {devOutput && (
+                  <textarea 
+                    className="mt-4 w-64 h-32 bg-black/50 text-green-400 text-[10px] p-2 border border-green-800 focus:outline-none"
+                    readOnly
+                    value={devOutput}
+                    onClick={(e) => e.target.select()}
+                  />
+                )}
+              </div>
+            )}
+          </div>
+
+          {showLevelComplete && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+               <div className="text-center">
+                 <h2 className="text-5xl font-mono text-cyan-300 mb-2 tracking-tighter">HARMONY ACHIEVED</h2>
+                 <div className="w-16 h-1 bg-cyan-500 mx-auto mb-8"></div>
+                 <button 
+                   onClick={handleNextLevel}
+                   className="px-6 py-2 border border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-black transition-colors font-mono"
+                 >
+                   PROCEED TO LEVEL {currentLevel.id + 1}
+                 </button>
+               </div>
+            </div>
+          )}
+
+          <div className="absolute bottom-4 right-6 text-[10px] text-gray-700 font-mono z-10 pointer-events-none">
+            MONODROMY ENGINE v1.0 | Press 'D' for Dev Mode
+          </div>
+        </div>
+      );
+    };
+
+    // ==========================================
+    // 4. MOUNT
+    // ==========================================
+    
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    );
+
+  </script>
+</body>
+</html>
