@@ -9,6 +9,7 @@ export const INITIAL_LEVELS: LevelData[] = [
     id: 1,
     degree: 2,
     formula: "z² + c = 0",
+    zoom: 1,
     coeffs: [
       {
         re: -1.43,
@@ -44,7 +45,7 @@ export const INITIAL_LEVELS: LevelData[] = [
     id: 2,
     degree: 2,
     formula: "z² - z + c = 0",
-    zoom: 1,
+    zoom: 0.76,
     coeffs: [
       {
         re: 2,
@@ -69,12 +70,12 @@ export const INITIAL_LEVELS: LevelData[] = [
       {
         id: 0,
         re: 0.5,
-        im: 1.32
+        im: -1.32
       },
       {
         id: 1,
         re: 0.5,
-        im: -1.32
+        im: 1.32
       }
     ]
   },
@@ -82,6 +83,7 @@ export const INITIAL_LEVELS: LevelData[] = [
     id: 3,
     degree: 2,
     formula: "z² + bz - 1 = 0",
+    zoom: 0.84,
     coeffs: [
       {
         re: -1,
@@ -119,6 +121,7 @@ export const INITIAL_LEVELS: LevelData[] = [
     id: 4,
     degree: 2,
     formula: "z² + bz + c = 0",
+    zoom: 0.84,
     coeffs: [
       {
         re: -1.74,
@@ -199,6 +202,7 @@ export const INITIAL_LEVELS: LevelData[] = [
     id: 6,
     degree: 3,
     formula: "z³ + bz + 1 = 0",
+    zoom: 1,
     coeffs: [
         { re: 1, im: 0, constraint: 'frozen', constraintParams: {} }, // c0 (constant)
         { re: 0, im: 0, constraint: 'none', constraintParams: {} },   // c1 (-az), start free at 0
@@ -264,7 +268,7 @@ export const INITIAL_LEVELS: LevelData[] = [
     id: 8,
     degree: 3,
     formula: "z³ + az² + bz + c = 0",
-    zoom: 0.87,
+    zoom: 0.63,
     coeffs: [
         { re: 1, im: 0.01, constraint: 'circle', constraintParams: {
             radius: 0.97,
@@ -301,7 +305,7 @@ export const INITIAL_LEVELS: LevelData[] = [
     id: 9,
     degree: 4,
     formula: "z⁴ + c = 0",
-    zoom: 0.76,
+    zoom: 0.9,
     coeffs: [
       {
         re: -1.45,
@@ -357,7 +361,7 @@ export const INITIAL_LEVELS: LevelData[] = [
     id: 10,
     degree: 4,
     formula: "z⁴ + bz + c = 0",
-    zoom: 0.76,
+    zoom: 0.54,
     coeffs: [
       {
         re: -1.62,
@@ -547,7 +551,7 @@ export const INITIAL_LEVELS: LevelData[] = [
     id: 13,
     degree: 5,
     formula: "z⁵ + c = 0",
-    zoom: 0.92,
+    zoom: 1,
     coeffs: [
       {
         re: -1.43,
@@ -614,7 +618,7 @@ export const INITIAL_LEVELS: LevelData[] = [
     id: 14,
     degree: 5,
     formula: "z⁵ + bz + 1 = 0",
-    zoom: 1,
+    zoom: 0.9,
     coeffs: [
       {
         re: 1,
@@ -679,7 +683,7 @@ export const INITIAL_LEVELS: LevelData[] = [
     id: 15,
     degree: 5,
     formula: "z⁵ + az² + 1 = 0",
-    zoom: 0.68,
+    zoom: 0.63,
     coeffs: [
       {
         re: 1,

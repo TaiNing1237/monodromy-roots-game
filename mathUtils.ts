@@ -55,10 +55,26 @@ export const findRoots = (currentRoots: Complex[], coeffs: Complex[], iterations
   // Initialize if empty or wrong size (should rely on frame coherence usually)
   if (nextRoots.length !== coeffs.length) {
       nextRoots = [];
+      // --- 新增：計算重心偏移 ---
+      // 根據韋達定理，根的重心在 -c_{n-1} / n
+      // 在你的 coeffs 陣列中，最高次項係數隱含為 1，次高項係數是 coeffs 的最後一個元素
+      const degree = coeffs.length;
+      const secondHighestCoeff = coeffs[coeffs.length - 1]; // 對於 z^2 - z + c，這裡是 -1
+      
+      // shift = -1 * (secondHighestCoeff / degree)
+      const shift = {
+          re: -secondHighestCoeff.re / degree,
+          im: -secondHighestCoeff.im / degree
+      };
+      // ------------------------
+
       for(let i=0; i<coeffs.length; i++) {
-          // Initialize with roots of unity * radius to avoid symmetry lock
           const angle = (Math.PI * 2 * i) / coeffs.length + 0.1;
-          nextRoots.push({ re: Math.cos(angle), im: Math.sin(angle) });
+          nextRoots.push({ 
+              // 加上 shift，讓初始猜測直接對準重心
+              re: Math.cos(angle) + shift.re, 
+              im: Math.sin(angle) + shift.im 
+          });
       }
   }
 

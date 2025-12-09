@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
+
+import React, { useState, useRef } from 'react';
 import { INITIAL_LEVELS } from './constants';
-import MonodromyGame from './components/MonodromyGame';
+import MonodromyGame, { MonodromyGameHandle } from './components/MonodromyGame';
 import { LevelData } from './types';
 
 const App: React.FC = () => {
@@ -11,6 +12,7 @@ const App: React.FC = () => {
   const [devOutput, setDevOutput] = useState<string>('');
   const [gameStarted, setGameStarted] = useState(false);
   const [showLevelComplete, setShowLevelComplete] = useState(false);
+  const gameRef = useRef<MonodromyGameHandle>(null);
 
   const currentLevel: LevelData = INITIAL_LEVELS[currentLevelIndex];
 
@@ -62,11 +64,15 @@ const App: React.FC = () => {
     );
   }
 
+  const buttonStyle = "px-3 py-1 border border-cyan-900/50 text-cyan-800 hover:bg-cyan-900/20 hover:text-cyan-400 hover:border-cyan-500 transition-colors text-xs font-mono tracking-widest uppercase pointer-events-auto";
+  const zoomButtonStyle = "px-1 py-1 border border-cyan-900/50 text-cyan-800 hover:bg-cyan-900/20 hover:text-cyan-400 hover:border-cyan-500 transition-colors text-xs font-mono tracking-widest uppercase pointer-events-auto";
+
   return (
     <div className="relative w-screen h-screen bg-[#050510] overflow-hidden">
       {/* Game Canvas */}
       <div className="absolute inset-0 z-0">
         <MonodromyGame 
+          ref={gameRef}
           key={`${currentLevel.id}-${resetKey}`}
           levelData={currentLevel} 
           isDevMode={isDevMode}
@@ -89,12 +95,27 @@ const App: React.FC = () => {
           <p className="text-cyan-800 text-xs font-mono mt-2">
              Drag <span className="text-pink-500">Squares</span> to guide <span className="text-cyan-300">Dots</span> to <span className="text-yellow-300">Rings</span>.
           </p>
-          <button 
-            onClick={handleResetLevel}
-            className="mt-4 px-3 py-1 border border-cyan-900/50 text-cyan-800 hover:bg-cyan-900/20 hover:text-cyan-400 hover:border-cyan-500 transition-colors text-xs font-mono tracking-widest uppercase pointer-events-auto"
-          >
-            [ RESET ]
-          </button>
+          
+          <div className="flex gap-2 mt-4 pointer-events-auto">
+            <button 
+                onClick={handleResetLevel}
+                className={buttonStyle}
+            >
+                [ RESET ]
+            </button>
+            <button 
+                onClick={() => gameRef.current?.zoom(-0.1)}
+                className={zoomButtonStyle}
+            >
+                [-]
+            </button>
+            <button 
+                onClick={() => gameRef.current?.zoom(0.1)}
+                className={zoomButtonStyle}
+            >
+                [+]
+            </button>
+          </div>
         </div>
         
         {isDevMode && (

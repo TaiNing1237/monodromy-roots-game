@@ -1,6 +1,6 @@
 
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { LevelData, Coefficient, Target, Complex, GAME_COLORS } from '../types';
 import { findRoots } from '../mathUtils';
 import { PENTATONIC_SCALE } from '../constants';
@@ -12,6 +12,10 @@ interface MonodromyGameProps {
   setDevOutput: (json: string) => void;
 }
 
+export interface MonodromyGameHandle {
+  zoom: (delta: number) => void;
+}
+
 interface Particle {
   x: number;
   y: number;
@@ -21,7 +25,7 @@ interface Particle {
   color: string;
 }
 
-const MonodromyGame: React.FC<MonodromyGameProps> = ({ levelData, isDevMode, onLevelComplete, setDevOutput }) => {
+const MonodromyGame = forwardRef<MonodromyGameHandle, MonodromyGameProps>(({ levelData, isDevMode, onLevelComplete, setDevOutput }, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const p5Instance = useRef<any>(null);
 
@@ -29,6 +33,14 @@ const MonodromyGame: React.FC<MonodromyGameProps> = ({ levelData, isDevMode, onL
   const levelRef = useRef<LevelData>(levelData);
   const isDevModeRef = useRef<boolean>(isDevMode);
   
+  useImperativeHandle(ref, () => ({
+    zoom: (delta: number) => {
+      if (p5Instance.current && (p5Instance.current as any).adjustZoom) {
+        (p5Instance.current as any).adjustZoom(delta);
+      }
+    }
+  }));
+
   useEffect(() => {
     levelRef.current = levelData;
   }, [levelData]);
@@ -88,6 +100,13 @@ const MonodromyGame: React.FC<MonodromyGameProps> = ({ levelData, isDevMode, onL
             centerX = p.width / 2;
             centerY = p.height / 2;
         }
+      };
+
+      // Exposed function for external zoom control
+      p.adjustZoom = (delta: number) => {
+        zoomLevel += delta;
+        zoomLevel = p.constrain(zoomLevel, 0.3, 2.0); // min 0.3, max 2.0
+        currentScale = BASE_SCALE * zoomLevel;
       };
 
       // Zoom Control
@@ -157,17 +176,36 @@ const MonodromyGame: React.FC<MonodromyGameProps> = ({ levelData, isDevMode, onL
         targets = data.targets.map(t => ({
           id: t.id, 
           val: { re: t.re, im: t.im },
-          radius: 0.12, // Tolerance radius in World Units (Reduced size)
+          radius: 0.12, 
           isFilled: false
         }));
 
-        // Initialize Roots
+        // --- Initialize Roots with Centroid Shift (The Fix) ---
         roots = [];
         rootTrails = [];
         const n = data.degree;
+
+        // 1. 計算重心偏移 (Shift)
+        // 根據韋達定理，重心 = - (a_{n-1}) / n
+        // coeffs 陣列是 [c0, c1, ..., c_{n-1}]，所以最後一個元素就是次高項係數
+        let shift = { re: 0, im: 0 };
+        
+        if (coeffs.length > 0 && n > 0) {
+            const secondHighestCoeff = coeffs[coeffs.length - 1]; // 取出 z^{n-1} 的係數
+            shift = {
+                re: -secondHighestCoeff.val.re / n,
+                im: -secondHighestCoeff.val.im / n
+            };
+        }
+
+        // 2. 產生根
         for(let i=0; i<n; i++) {
-           const angle = (p.TWO_PI * i) / n;
-           roots.push({ re: Math.cos(angle), im: Math.sin(angle) });
+           // 加一點點偏移 (0.1) 避免完美的對稱死鎖
+           const angle = (p.TWO_PI * i) / n + 0.1; 
+           roots.push({ 
+               re: Math.cos(angle) + shift.re, // <--- 關鍵：加上 Shift
+               im: Math.sin(angle) + shift.im 
+           });
            rootTrails.push([]);
         }
       };
@@ -670,6 +708,6 @@ const MonodromyGame: React.FC<MonodromyGameProps> = ({ levelData, isDevMode, onL
   }, [levelData.id]); 
 
   return <div ref={containerRef} className="w-full h-full" />;
-};
+});
 
 export default MonodromyGame;
