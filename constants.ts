@@ -8,7 +8,7 @@ export const INITIAL_LEVELS: LevelData[] = [
   {
     id: 1,
     degree: 2,
-    formula: "z² + a = 0",
+    formula: "z² + c = 0",
     coeffs: [
       {
         re: -1.43,
@@ -43,10 +43,11 @@ export const INITIAL_LEVELS: LevelData[] = [
   {
     id: 2,
     degree: 2,
-    formula: "z² - z + a = 0",
+    formula: "z² - z + c = 0",
+    zoom: 1,
     coeffs: [
       {
-        re: 0,
+        re: 2,
         im: 0,
         constraint: "circle",
         constraintParams: {
@@ -66,21 +67,21 @@ export const INITIAL_LEVELS: LevelData[] = [
     ],
     targets: [
       {
-        id: 1,
-        re: 1,
-        im: 0
+        id: 0,
+        re: 0.5,
+        im: 1.32
       },
       {
-        id: 0,
-        re: 0,
-        im: 0
+        id: 1,
+        re: 0.5,
+        im: -1.32
       }
     ]
   },
   {
     id: 3,
     degree: 2,
-    formula: "z² + az - 1 = 0",
+    formula: "z² + bz - 1 = 0",
     coeffs: [
       {
         re: -1,
@@ -152,7 +153,7 @@ export const INITIAL_LEVELS: LevelData[] = [
   {
     id: 5,
     degree: 3,
-    formula: "z³ - a = 0",
+    formula: "z³ + c = 0",
     zoom: 0.7,
     coeffs: [
       {
@@ -197,7 +198,7 @@ export const INITIAL_LEVELS: LevelData[] = [
   {
     id: 6,
     degree: 3,
-    formula: "z³ + az + 1 = 0",
+    formula: "z³ + bz + 1 = 0",
     coeffs: [
         { re: 1, im: 0, constraint: 'frozen', constraintParams: {} }, // c0 (constant)
         { re: 0, im: 0, constraint: 'none', constraintParams: {} },   // c1 (-az), start free at 0
@@ -299,6 +300,124 @@ export const INITIAL_LEVELS: LevelData[] = [
   {
     id: 9,
     degree: 4,
+    formula: "z⁴ + c = 0",
+    zoom: 0.76,
+    coeffs: [
+      {
+        re: -1.45,
+        im: 0.01,
+        constraint: "circle",
+        constraintParams: {
+          radius: 1.45
+        }
+      },
+      {
+        re: 0,
+        im: 0,
+        constraint: "frozen",
+        constraintParams: {}
+      },
+      {
+        re: 0,
+        im: 0,
+        constraint: "frozen",
+        constraintParams: {}
+      },
+      {
+        re: 0,
+        im: 0,
+        constraint: "frozen",
+        constraintParams: {}
+      }
+    ],
+    targets: [
+      {
+        id: 0,
+        re: -0.77,
+        im: -0.78
+      },
+      {
+        id: 1,
+        re: 0.78,
+        im: -0.77
+      },
+      {
+        id: 2,
+        re: 0.77,
+        im: 0.78
+      },
+      {
+        id: 3,
+        re: -0.78,
+        im: 0.77
+      }
+    ]
+  },
+  {
+    id: 10,
+    degree: 4,
+    formula: "z⁴ + bz + c = 0",
+    zoom: 0.76,
+    coeffs: [
+      {
+        re: -1.62,
+        im: 0.04,
+        constraint: "circle",
+        constraintParams: {
+          radius: 1.62
+        }
+      },
+      {
+        re: 2.96,
+        im: -0.01,
+        constraint: "circle",
+        constraintParams: {
+          radius: 1.14,
+          center: {
+            re: 1.82,
+            im: 0.01
+          }
+        }
+      },
+      {
+        re: 0,
+        im: 0,
+        constraint: "frozen",
+        constraintParams: {}
+      },
+      {
+        re: 0,
+        im: 0,
+        constraint: "frozen",
+        constraintParams: {}
+      }
+    ],
+    targets: [
+      {
+        id: 0,
+        re: 0.8,
+        im: 0.93
+      },
+      {
+        id: 1,
+        re: -0.8,
+        im: 0.65
+      },
+      {
+        id: 2,
+        re: 0.81,
+        im: -0.93
+      },
+      {
+        id: 3,
+        re: -0.8,
+        im: -0.66
+      }
+    ]
+  },
+  {
+    id: 11,
+    degree: 4,
     formula: "z⁴ + az² + bz + c = 0",
     zoom: 1.1,
     coeffs: [
@@ -365,7 +484,7 @@ export const INITIAL_LEVELS: LevelData[] = [
     ]
   },
   {
-    id: 10,
+    id: 12,
     degree: 4,
     formula: "z⁴ + az² + bz + c = 0",
     zoom: 0.84,
@@ -423,5 +542,219 @@ export const INITIAL_LEVELS: LevelData[] = [
         im: 0.85
       }
     ]
+  },
+  {
+    id: 13,
+    degree: 5,
+    formula: "z⁵ + c = 0",
+    zoom: 0.92,
+    coeffs: [
+      {
+        re: -1.43,
+        im: -0.02,
+        constraint: "circle",
+        constraintParams: {
+          radius: 1.43
+        }
+      },
+      {
+        re: 0,
+        im: 0,
+        constraint: "frozen",
+        constraintParams: {}
+      },
+      {
+        re: 0,
+        im: 0,
+        constraint: "frozen",
+        constraintParams: {}
+      },
+      {
+        re: 0,
+        im: 0,
+        constraint: "frozen",
+        constraintParams: {}
+      },
+      {
+        re: 0,
+        im: 0,
+        constraint: "frozen",
+        constraintParams: {}
+      }
+    ],
+    targets: [
+      {
+        id: 0,
+        re: -0.33,
+        im: 1.02
+      },
+      {
+        id: 1,
+        re: -1.07,
+        im: 0
+      },
+      {
+        id: 2,
+        re: -0.33,
+        im: -1.02
+      },
+      {
+        id: 3,
+        re: 0.87,
+        im: -0.63
+      },
+      {
+        id: 4,
+        re: 0.87,
+        im: 0.63
+      }
+    ]
+  },
+  {
+    id: 14,
+    degree: 5,
+    formula: "z⁵ + bz + 1 = 0",
+    zoom: 1,
+    coeffs: [
+      {
+        re: 1,
+        im: 0,
+        constraint: "frozen",
+        constraintParams: {}
+      },
+      {
+        re: -0.26,
+        im: 0.01,
+        constraint: "none",
+        constraintParams: {}
+      },
+      {
+        re: 0,
+        im: 0,
+        constraint: "frozen",
+        constraintParams: {}
+      },
+      {
+        re: 0,
+        im: 0,
+        constraint: "frozen",
+        constraintParams: {}
+      },
+      {
+        re: 0,
+        im: 0,
+        constraint: "frozen",
+        constraintParams: {}
+      }
+    ],
+    targets: [
+      {
+        id: 0,
+        re: -1.05,
+        im: 0
+      },
+      {
+        id: 1,
+        re: 0.79,
+        im: 0.54
+      },
+      {
+        id: 2,
+        re: 0.79,
+        im: -0.54
+      },
+      {
+        id: 3,
+        re: -0.27,
+        im: 0.98
+      },
+      {
+        id: 4,
+        re: -0.27,
+        im: -0.98
+      }
+    ]
+  },
+  {
+    id: 15,
+    degree: 5,
+    formula: "z⁵ + az² + 1 = 0",
+    zoom: 0.68,
+    coeffs: [
+      {
+        re: 1,
+        im: 0,
+        constraint: "frozen",
+        constraintParams: {}
+      },
+      {
+        re: 0,
+        im: 0,
+        constraint: "frozen",
+        constraintParams: {}
+      },
+      {
+        re: -2.4,
+        im: 0.02,
+        constraint: "none",
+        constraintParams: {}
+      },
+      {
+        re: 0,
+        im: 0,
+        constraint: "frozen",
+        constraintParams: {}
+      },
+      {
+        re: 0,
+        im: 0,
+        constraint: "frozen",
+        constraintParams: {}
+      }
+    ],
+    targets: [
+      {
+        id: 0,
+        re: -0.62,
+        im: 0
+      },
+      {
+        id: 1,
+        re: -0.63,
+        im: 1.24
+      },
+      {
+        id: 2,
+        re: 1.18,
+        im: 0
+      },
+      {
+        id: 3,
+        re: 0.7,
+        im: 0
+      },
+      {
+        id: 4,
+        re: -0.63,
+        im: -1.24
+      }
+    ]
   }
+  // {
+  //   id: 100,
+  //   degree: 4,
+  //   formula: "z⁵ + z⁴ + z³ + az² + bz + c = 0",
+  //   coeffs: [
+  //       { re: 0, im: -0.7, constraint: 'none', constraintParams: {} }, // c0 (constant)
+  //       { re: 0, im: 0, constraint: 'frozen', constraintParams: {} },   // c1
+  //       { re: 0, im: 0, constraint: 'frozen', constraintParams: {} },   // c2
+  //       { re: 0, im: 0, constraint: 'frozen', constraintParams: {} }   // c3
+  //   ],
+  //   targets: [
+  //       { id: 0, re: -1, im: 0 },
+  //       { id: 1, re: 0.5, im: 0.866 },
+  //       { id: 2, re: 0.5, im: -0.866 },
+  //       { id: 3, re: -0.5, im: 0.866 }
+  //   ]
+  // },
 ];

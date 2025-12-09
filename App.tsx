@@ -56,7 +56,7 @@ const App: React.FC = () => {
           onClick={() => setGameStarted(true)}
           className="px-8 py-3 border border-cyan-500 hover:bg-cyan-900/30 transition-all text-lg tracking-widest"
         >
-          INITIALIZE INTERFACE
+          START
         </button>
       </div>
     );
@@ -93,7 +93,7 @@ const App: React.FC = () => {
             onClick={handleResetLevel}
             className="mt-4 px-3 py-1 border border-cyan-900/50 text-cyan-800 hover:bg-cyan-900/20 hover:text-cyan-400 hover:border-cyan-500 transition-colors text-xs font-mono tracking-widest uppercase pointer-events-auto"
           >
-            [ RESET SYSTEM ]
+            [ RESET ]
           </button>
         </div>
         
@@ -104,8 +104,6 @@ const App: React.FC = () => {
               <li>[Drag]: Move any Coeff</li>
               <li>[H]: Snap Horizontal</li>
               <li>[V]: Snap Vertical</li>
-              <li>[Q]: Snap x+y=c</li>
-              <li>[W]: Snap x-y=c</li>
               <li>[C]: Snap Circle (Origin)</li>
               <li>[E]: Define Circle Center (Click)</li>
               <li>[Z]: Freeze Position</li>
