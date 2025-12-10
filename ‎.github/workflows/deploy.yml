@@ -3,8 +3,8 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
-  
+  workflow_dispatch: # 加上這個讓你等等可以手動按按鈕測試
+
 permissions:
   contents: write
 
@@ -12,20 +12,18 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout 🛎️
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node.js ⚙️
+      - name: Install and Build
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: Install and Build 🔧
-        run: |
+      - run: |
           npm install
           npm run build
 
-      - name: Deploy 🚀
+      - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: dist
