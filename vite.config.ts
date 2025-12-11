@@ -5,9 +5,6 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-        // 👇 關鍵是這一行！解決 404 錯誤
-      base: '/monodromy-roots-game/',
-        
       server: {
         port: 3000,
         host: '0.0.0.0',

@@ -753,7 +753,7 @@ export const INITIAL_LEVELS: LevelData[] = [
         { re: 0.7, im: 0, constraint: 'circle', constraintParams: {radius: 0.7} }, // c0 (constant)
         { re: 0, im: -1, constraint: 'none', constraintParams: {} },   // c1
         { re: 0, im: 1, constraint: 'none', constraintParams: {} },   // c2
-        { re: 1, im: -0.7, constraint: 'circle', constraintParams: {radius: 0.7, center: {re: 1, im: 0}} }   // c3
+        { re: 1, im: -0.7, constraint: 'circle', constraintParams: {radius: 0.7, center: {re: 1, im: 0}} },   // c3
         { re: 0, im: 0, constraint: 'frozen', constraintParams: {} }   // c4
     ],
     targets: [
