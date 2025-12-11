@@ -82,7 +82,10 @@ const App: React.FC = () => {
       </div>
 
       {/* HUD */}
-      <div className="absolute top-0 left-0 w-full p-6 z-10 pointer-events-none flex justify-between items-start">
+      <div 
+        className="absolute top-0 left-0 w-full px-6 pb-6 z-10 pointer-events-none flex justify-between items-start"
+        style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top) + 1.5rem)' }}
+        >
         <div>
           <h2 className="text-cyan-400 font-mono text-xl tracking-widest">
             LEVEL {currentLevel.id} <span className="text-xs text-gray-500">/ DEGREE {currentLevel.degree}</span>

@@ -743,6 +743,46 @@ export const INITIAL_LEVELS: LevelData[] = [
         im: -1.24
       }
     ]
+  },
+  {
+    id: 16,
+    degree: 5,
+    formula: "Make your own game: Press 'D'",
+    zoom: 0.8,
+    coeffs: [
+        { re: 0.7, im: 0, constraint: 'circle', constraintParams: {radius: 0.7} }, // c0 (constant)
+        { re: 0, im: -1, constraint: 'none', constraintParams: {} },   // c1
+        { re: 0, im: 1, constraint: 'none', constraintParams: {} },   // c2
+        { re: 1, im: -0.7, constraint: 'circle', constraintParams: {radius: 0.7, center: {re: 1, im: 0}} }   // c3
+        { re: 0, im: 0, constraint: 'frozen', constraintParams: {} }   // c4
+    ],
+    targets: [
+      {
+        id: 0,
+        re: -0.37,
+        im: -0.01
+      },
+      {
+        id: 1,
+        re: -0.44,
+        im: 1.38
+      },
+      {
+        id: 2,
+        re: 0.66,
+        im: -0.73
+      },
+      {
+        id: 3,
+        re: -0.47,
+        im: -1.35
+      },
+      {
+        id: 4,
+        re: 0.61,
+        im: 0.71
+      }
+    ]
   }
   // {
   //   id: 100,
