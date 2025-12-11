@@ -125,10 +125,10 @@ const MonodromyGame = forwardRef<MonodromyGameHandle, MonodromyGameProps>(({ lev
         if (isAudioStarted) return;
         p.userStartAudio();
         
-        droneOsc = new (window as any).p5.Oscillator('sine');
-        droneOsc.freq(55);
-        droneOsc.amp(0.1);
-        droneOsc.start();
+        // droneOsc = new (window as any).p5.Oscillator('sine');
+        // droneOsc.freq(55);
+        // droneOsc.amp(0.1);
+        // droneOsc.start();
         
         feedbackOsc = new (window as any).p5.Oscillator('triangle');
         feedbackEnv = new (window as any).p5.Envelope();
